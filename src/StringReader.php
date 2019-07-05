@@ -3,18 +3,106 @@
 class StringReader implements ImmutableStringReaderInterface
 {
     const SYNTAX_ESCAPE = '\\';
-    const SYNTAX_DOUBLE_QUOTE = '"';
-    const SYNTAX_SINGLE_QUOTE = '\'';
+
+    const ALLOWED_QUOTES = [
+        '\'' => true,
+        '"' => true
+    ];
+
+    const ALLOWED_NUMBER = [
+        '0' => true,
+        '1' => true,
+        '2' => true,
+        '3' => true,
+        '4' => true,
+        '5' => true,
+        '6' => true,
+        '7' => true,
+        '8' => true,
+        '9' => true,
+        '-' => true,
+        '.' => true
+    ];
+
+    const ALLOWED_IN_QUOTED_STRING = [
+        'A' => true,
+        'B' => true,
+        'C' => true,
+        'D' => true,
+        'E' => true,
+        'F' => true,
+        'G' => true,
+        'H' => true,
+        'I' => true,
+        'J' => true,
+        'K' => true,
+        'L' => true,
+        'M' => true,
+        'N' => true,
+        'O' => true,
+        'P' => true,
+        'Q' => true,
+        'R' => true,
+        'S' => true,
+        'T' => true,
+        'U' => true,
+        'V' => true,
+        'W' => true,
+        'X' => true,
+        'Y' => true,
+        'Z' => true,
+        'a' => true,
+        'b' => true,
+        'c' => true,
+        'd' => true,
+        'e' => true,
+        'f' => true,
+        'g' => true,
+        'h' => true,
+        'i' => true,
+        'j' => true,
+        'k' => true,
+        'l' => true,
+        'm' => true,
+        'n' => true,
+        'o' => true,
+        'p' => true,
+        'q' => true,
+        'r' => true,
+        's' => true,
+        't' => true,
+        'u' => true,
+        'v' => true,
+        'w' => true,
+        'x' => true,
+        'y' => true,
+        'z' => true,
+        '0' => true,
+        '1' => true,
+        '2' => true,
+        '3' => true,
+        '4' => true,
+        '5' => true,
+        '6' => true,
+        '7' => true,
+        '8' => true,
+        '9' => true,
+        '_' => true,
+        '-' => true,
+        '.' => true,
+        '+' => true,
+    ];
 
     /** @var string $string */
     private $string = '';
+    private $stringParts = [];
 
     /** @var int $length */
     private $length = 0;
 
     /** @var int $cursor */
     private $cursor = 0;
-    
+
     public function __construct($input)
     {
         if ($input instanceof StringReader) {
@@ -29,7 +117,8 @@ class StringReader implements ImmutableStringReaderInterface
             throw new \InvalidArgumentException('Input must either be another StringReader or a string');
         }
 
-        $this->length = mb_strlen($this->string);
+        $this->stringParts = preg_split('//u', $this->string, -1, PREG_SPLIT_NO_EMPTY);
+        $this->length = count($this->stringParts);
     }
 
     /**
@@ -90,7 +179,7 @@ class StringReader implements ImmutableStringReaderInterface
      */
     public function getRead(): string
     {
-        return mb_substr($this->string, 0, $this->cursor);
+        return $this->stringParts[$this->cursor];
     }
 
     /**
@@ -100,7 +189,7 @@ class StringReader implements ImmutableStringReaderInterface
      */
     public function getRemaining(): string
     {
-        return mb_substr($this->string, $this->cursor);
+        return $this->substr($this->cursor, $this->length - 1);
     }
 
     /**
@@ -122,7 +211,7 @@ class StringReader implements ImmutableStringReaderInterface
      */
     public function peek(int $offset = 0): string
     {
-        return mb_substr($this->string, $this->cursor + $offset, 1);
+        return $this->stringParts[($this->cursor + $offset)] ?? '';
     }
 
     /**
@@ -132,7 +221,7 @@ class StringReader implements ImmutableStringReaderInterface
      */
     public function read(): string
     {
-        return mb_substr($this->string, $this->cursor++, 1);
+        return $this->stringParts[$this->cursor++] ?? '';
     }
 
     /**
@@ -153,7 +242,7 @@ class StringReader implements ImmutableStringReaderInterface
      */
     public static function isAllowedNumber(string $c): bool
     {
-        return $c >= '0' && $c <= '9' || $c == '.' || $c == '-';
+        return isset(self::ALLOWED_NUMBER[$c]);
     }
 
     /**
@@ -164,7 +253,7 @@ class StringReader implements ImmutableStringReaderInterface
      */
     public static function isQuotedStringStart(string $c): bool
     {
-        return $c == self::SYNTAX_DOUBLE_QUOTE || $c == self::SYNTAX_SINGLE_QUOTE;
+        return isset(self::ALLOWED_QUOTES[$c]);
     }
 
     /**
@@ -175,11 +264,7 @@ class StringReader implements ImmutableStringReaderInterface
      */
     public static function isAllowedInUnquotedString(string $c): bool
     {
-        return $c >= '0' && $c <= '9'
-            || $c >= 'A' && $c <= 'Z'
-            || $c >= 'a' && $c <= 'z'
-            || $c == '_' || $c == '-'
-            || $c == '.' || $c == '+';
+        return isset(self::ALLOWED_IN_QUOTED_STRING[$c]);
     }
 
     /**
@@ -189,9 +274,10 @@ class StringReader implements ImmutableStringReaderInterface
      */
     public function skipWhitespace(): void
     {
-        while ($this->canRead() && \IntlChar::isWhitespace($this->peek())) {
+        if (\IntlChar::isWhitespace($this->peek())) {
 
             $this->skip();
+            $this->skipWhitespace();
         }
     }
 
@@ -203,7 +289,7 @@ class StringReader implements ImmutableStringReaderInterface
      */
     public function expect(string $c): void
     {
-        if (!$this->canRead() || $this->peek() !== $c) {
+        if (!$this->canRead() || $this->peek() != $c) {
 
             throw new \Exception('TODO'); // throw CommandSyntaxException.BUILT_IN_EXCEPTIONS.readerExpectedSymbol().createWithContext(this, String.valueOf(c));
         }
@@ -225,7 +311,7 @@ class StringReader implements ImmutableStringReaderInterface
             $this->skip();
         }
 
-        $number = mb_substr($this->string, $start, $this->cursor - $start);
+        $number = $this->substr($start, $this->cursor);
 
         if (mb_strlen($number) === 0) {
 
@@ -265,7 +351,7 @@ class StringReader implements ImmutableStringReaderInterface
             $this->skip();
         }
 
-        $number = mb_substr($this->string, $start, $this->cursor - $start);
+        $number = $this->substr($start, $this->cursor);
 
         if (mb_strlen($number) === 0) {
 
@@ -300,16 +386,29 @@ class StringReader implements ImmutableStringReaderInterface
      *
      * @return string
      */
-    public function readUnquotedString(): string
+    public function readUnquotedString(int $start = null): string
     {
-        $start = $this->cursor;
+        $start = $start ?? $this->cursor;
 
-        while ($this->canRead() && self::isAllowedInUnquotedString($this->peek())) {
+        if (self::isAllowedInUnquotedString($this->peek())) {
 
             $this->skip();
+            return $this->readUnquotedString($start);
+        }
+        
+        return $this->substr($start, $this->cursor);
+    }
+
+    private function substr(int $start, int $until): string
+    {
+        $buffer = '';
+
+        for ($i = $start; $i < $until; $i++) {
+
+            $buffer .= $this->stringParts[$i];
         }
 
-        return mb_substr($this->string, $start, $this->cursor - $start);
+        return $buffer;
     }
 
     /**
@@ -350,10 +449,9 @@ class StringReader implements ImmutableStringReaderInterface
     {
         $result = '';
         $escaped = false;
+        $c = $this->read();
 
-        while ($this->canRead()) {
-
-            $c = $this->read();
+        while ($c != '') {
 
             if ($escaped) {
 
@@ -376,6 +474,8 @@ class StringReader implements ImmutableStringReaderInterface
 
                 $result .= $c;
             }
+
+            $c = $this->read();
         }
 
         throw new \Exception('TODO'); // throw CommandSyntaxException.BUILT_IN_EXCEPTIONS.readerExpectedEndOfQuote().createWithContext(this);
