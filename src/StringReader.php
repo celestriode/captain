@@ -227,7 +227,7 @@ class StringReader implements ImmutableStringReaderInterface
 
         $number = mb_substr($this->string, $start, $this->cursor - $start);
 
-        if (empty($number)) {
+        if (mb_strlen($number) === 0) {
 
             throw new \Exception('TODO'); // throw CommandSyntaxException.BUILT_IN_EXCEPTIONS.readerExpectedInt().createWithContext(this);
         }
@@ -267,7 +267,7 @@ class StringReader implements ImmutableStringReaderInterface
 
         $number = mb_substr($this->string, $start, $this->cursor - $start);
 
-        if (empty($number)) {
+        if (mb_strlen($number) === 0) {
 
             throw new \Exception('TODO'); // throw CommandSyntaxException.BUILT_IN_EXCEPTIONS.readerExpectedFloat().createWithContext(this);
         }
@@ -431,7 +431,7 @@ class StringReader implements ImmutableStringReaderInterface
         $start = $this->cursor;
         $value = $this->readString();
 
-        if (empty($value)) {
+        if (mb_strlen($value) === 0) {
 
             throw new \Exception('TODO'); // throw CommandSyntaxException.BUILT_IN_EXCEPTIONS.readerExpectedBool().createWithContext(this);
         }
