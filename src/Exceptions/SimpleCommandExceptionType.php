@@ -2,6 +2,7 @@
 
 use Celestriode\Captain\MessageInterface;
 use Celestriode\Captain\ImmutableStringReaderInterface;
+use Celestriode\Captain\LiteralMessage;
 
 class SimpleCommandExceptionType implements CommandExceptionTypeInterface
 {
@@ -27,4 +28,9 @@ class SimpleCommandExceptionType implements CommandExceptionTypeInterface
     {
         return $this->message->getString();
     }
+	
+	public static function createWithLiteral(string $string): self
+	{
+		return new self(new LiteralMessage($string))
+	}
 }

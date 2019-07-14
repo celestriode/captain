@@ -85,65 +85,54 @@ class BuiltInExceptions implements BuiltInExceptionProviderInterface
         });
 	}
 
-    /**
-     * Creates a simple command exception type with the provided string.
-     *
-     * @param string $string The literal message with no extra parameters.
-     * @return SimpleCommandExceptionType
-     */
-    final private function createSimple(string $string): SimpleCommandExceptionType
-    {
-        return new SimpleCommandExceptionType(new LiteralMessage($string));
-    }
-
     public function readerExpectedStartOfQuote(): SimpleCommandExceptionType
 	{
-        return $this->createSimple('Expected quote to start a string');
+        return SimpleCommandExceptionType::createWithLiteral('Expected quote to start a string');
 	}
 
     public function readerExpectedEndOfQuote(): SimpleCommandExceptionType
 	{
-        return $this->createSimple('Unclosed quoted string');
+        return SimpleCommandExceptionType::createWithLiteral('Unclosed quoted string');
 	}
 
     public function readerExpectedInt(): SimpleCommandExceptionType
 	{
-        return $this->createSimple('Expected integer');
+        return SimpleCommandExceptionType::createWithLiteral('Expected integer');
 	}
 
     public function readerExpectedLong(): SimpleCommandExceptionType
 	{
-		return $this->createSimple('Expected long');
+		return SimpleCommandExceptionType::createWithLiteral('Expected long');
 	}
 
     public function readerExpectedDouble(): SimpleCommandExceptionType
 	{
-        return $this->createSimple('Expected double');
+        return SimpleCommandExceptionType::createWithLiteral('Expected double');
 	}
 
     public function readerExpectedFloat(): SimpleCommandExceptionType
 	{
-		return $this->createSimple('Expected float');
+		return SimpleCommandExceptionType::createWithLiteral('Expected float');
 	}
 
     public function readerExpectedBool(): SimpleCommandExceptionType
 	{
-		return $this->createSimple('Expected bool');
+		return SimpleCommandExceptionType::createWithLiteral('Expected bool');
 	}
 
     public function dispatcherUnknownCommand(): SimpleCommandExceptionType
 	{
-		return $this->createSimple('Unknown command');
+		return SimpleCommandExceptionType::createWithLiteral('Unknown command');
 	}
 
     public function dispatcherUnknownArgument(): SimpleCommandExceptionType
 	{
-		return $this->createSimple('Incorrect argument for command');
+		return SimpleCommandExceptionType::createWithLiteral('Incorrect argument for command');
 	}
 
     public function dispatcherExpectedArgumentSeparator(): SimpleCommandExceptionType
 	{
-		return $this->createSimple('Expected whitespace to end one argument, but found trailing data');
+		return SimpleCommandExceptionType::createWithLiteral('Expected whitespace to end one argument, but found trailing data');
 	}
 
     public function literalIncorrect(): DynamicCommandExceptionType
