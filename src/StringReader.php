@@ -1,5 +1,7 @@
 <?php namespace Celestriode\Captain;
 
+use Celestriode\Captain\Exceptions\CommandSyntaxException;
+
 class StringReader implements ImmutableStringReaderInterface
 {
     const SYNTAX_ESCAPE = '\\';
@@ -179,7 +181,7 @@ class StringReader implements ImmutableStringReaderInterface
      */
     public function getRead(): string
     {
-        return $this->stringParts[$this->cursor];
+        return implode('', array_slice($this->stringParts, 0, $this->cursor));
     }
 
     /**
@@ -189,7 +191,7 @@ class StringReader implements ImmutableStringReaderInterface
      */
     public function getRemaining(): string
     {
-        return $this->substr($this->cursor, $this->length - 1);
+        return $this->substr($this->cursor, $this->length);
     }
 
     /**
@@ -291,7 +293,7 @@ class StringReader implements ImmutableStringReaderInterface
     {
         if (!$this->canRead() || $this->peek() != $c) {
 
-            throw new \Exception('TODO'); // throw CommandSyntaxException.BUILT_IN_EXCEPTIONS.readerExpectedSymbol().createWithContext(this, String.valueOf(c));
+            throw CommandSyntaxException::getBuiltInExceptions()->readerExpectedSymbol()->createWithContext($this, $c);
         }
 
         $this->skip();
@@ -315,13 +317,13 @@ class StringReader implements ImmutableStringReaderInterface
 
         if (mb_strlen($number) === 0) {
 
-            throw new \Exception('TODO'); // throw CommandSyntaxException.BUILT_IN_EXCEPTIONS.readerExpectedInt().createWithContext(this);
+            throw CommandSyntaxException::getBuiltInExceptions()->readerExpectedInt()->createWithContext($this);
         }
 
         if (!is_numeric($number)) {
 
             $this->cursor = $start;
-            throw new \Exception('TODO'); // throw CommandSyntaxException.BUILT_IN_EXCEPTIONS.readerInvalidInt().createWithContext(this, number);
+            throw CommandSyntaxException::getBuiltInExceptions()->readerInvalidInt()->createWithContext($this, $number);
         }
 
         return (int)$number;
@@ -355,13 +357,13 @@ class StringReader implements ImmutableStringReaderInterface
 
         if (mb_strlen($number) === 0) {
 
-            throw new \Exception('TODO'); // throw CommandSyntaxException.BUILT_IN_EXCEPTIONS.readerExpectedFloat().createWithContext(this);
+            throw CommandSyntaxException::getBuiltInExceptions()->readerExpectedFloat()->createWithContext($this);
         }
 
         if (!is_numeric($number)) {
 
             $this->cursor = $start;
-            throw new \Exception('TODO'); // throw CommandSyntaxException.BUILT_IN_EXCEPTIONS.readerInvalidFloat().createWithContext(this, number);
+            throw CommandSyntaxException::getBuiltInExceptions()->readerInvalidFloat()->createWithContext($this, $number);
         }
 
         return (float)$number;
@@ -429,7 +431,7 @@ class StringReader implements ImmutableStringReaderInterface
 
         if (!self::isQuotedStringStart($next)) {
 
-            throw new \Exception('TODO'); // throw CommandSyntaxException.BUILT_IN_EXCEPTIONS.readerExpectedStartOfQuote().createWithContext(this);
+            throw CommandSyntaxException::getBuiltInExceptions()->readerExpectedStartOfQuote()->createWithContext($this);
         }
 
         $this->skip();
@@ -462,7 +464,8 @@ class StringReader implements ImmutableStringReaderInterface
                 } else {
 
                     $this->setCursor($this->getCursor() - 1);
-                    throw new \Exception('TODO'); // throw CommandSyntaxException.BUILT_IN_EXCEPTIONS.readerInvalidEscape().createWithContext(this, String.valueOf(c));
+
+                    throw CommandSyntaxException::getBuiltInExceptions()->readerInvalidEscape()->createWithContext($this, $c);
                 }
             } else if ($c === self::SYNTAX_ESCAPE) {
 
@@ -478,7 +481,7 @@ class StringReader implements ImmutableStringReaderInterface
             $c = $this->read();
         }
 
-        throw new \Exception('TODO'); // throw CommandSyntaxException.BUILT_IN_EXCEPTIONS.readerExpectedEndOfQuote().createWithContext(this);
+        throw CommandSyntaxException::getBuiltInExceptions()->readerExpectedEndOfQuote()->createWithContext($this);
     }
 
     /**
@@ -533,7 +536,7 @@ class StringReader implements ImmutableStringReaderInterface
 
         if (mb_strlen($value) === 0) {
 
-            throw new \Exception('TODO'); // throw CommandSyntaxException.BUILT_IN_EXCEPTIONS.readerExpectedBool().createWithContext(this);
+            throw CommandSyntaxException::getBuiltInExceptions()->readerExpectedBool()->createWithContext($this);
         }
 
         if ($value == 'true') {
@@ -546,7 +549,7 @@ class StringReader implements ImmutableStringReaderInterface
 
             $this->cursor = $start;
 
-            throw new \Exception('TODO'); // throw CommandSyntaxException.BUILT_IN_EXCEPTIONS.readerInvalidBool().createWithContext(this, value);
+            throw CommandSyntaxException::getBuiltInExceptions()->readerInvalidBool()->createWithContext($this, $value);
         }
     }
 }
