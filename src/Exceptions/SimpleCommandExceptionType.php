@@ -31,6 +31,6 @@ class SimpleCommandExceptionType implements CommandExceptionTypeInterface
 	
 	public static function createWithLiteral(string $string): self
 	{
-		return new self(new LiteralMessage($string))
+		return new self(new LiteralMessage($string));
 	}
 }
