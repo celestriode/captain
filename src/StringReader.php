@@ -320,7 +320,7 @@ class StringReader implements ImmutableStringReaderInterface
             throw CommandSyntaxException::getBuiltInExceptions()->readerExpectedInt()->createWithContext($this);
         }
 
-        if (!is_numeric($number)) {
+        if (filter_var($number, FILTER_VALIDATE_INT) === false) {
 
             $this->cursor = $start;
             throw CommandSyntaxException::getBuiltInExceptions()->readerInvalidInt()->createWithContext($this, $number);
