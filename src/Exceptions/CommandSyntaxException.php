@@ -1,11 +1,12 @@
 <?php namespace Celestriode\Captain\Exceptions;
 
 use Celestriode\Captain\MessageInterface;
+use Exception;
 
-class CommandSyntaxException extends \Exception
+class CommandSyntaxException extends Exception
 {
-    const CONTEXT_AMOUNT = 10;
-    /** @var BuiltIntExceptionProviderInterface $builtInExceptions */
+    const CONTEXT_AMOUNT = 15;
+    /** @var BuiltInExceptionProviderInterface $builtInExceptions */
     private static $builtInExceptions;
 
     /** @var CommandExceptionTypeInterface $type */
@@ -65,7 +66,9 @@ class CommandSyntaxException extends \Exception
             $buffer .= '...';
         }
 
-        $buffer .= mb_substr($this->input, max(0, $cursor - self::CONTEXT_AMOUNT), $cursor); // TODO: math
+        $max = max(0, $cursor - self::CONTEXT_AMOUNT);
+
+        $buffer .= mb_substr($this->input, $max, $cursor - $max);
         $buffer .= '<--[HERE]';
 
         return $buffer;

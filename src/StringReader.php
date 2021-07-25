@@ -1,6 +1,8 @@
 <?php namespace Celestriode\Captain;
 
 use Celestriode\Captain\Exceptions\CommandSyntaxException;
+use IntlChar;
+use InvalidArgumentException;
 
 class StringReader implements ImmutableStringReaderInterface
 {
@@ -116,7 +118,7 @@ class StringReader implements ImmutableStringReaderInterface
             $this->string = $input;
         } else {
 
-            throw new \InvalidArgumentException('Input must either be another StringReader or a string');
+            throw new InvalidArgumentException('Input must either be another StringReader or a string');
         }
 
         $this->stringParts = preg_split('//u', $this->string, -1, PREG_SPLIT_NO_EMPTY);
@@ -177,7 +179,7 @@ class StringReader implements ImmutableStringReaderInterface
     /**
      * Returns the characters before the cursor.
      *
-     * @return void
+     * @return string
      */
     public function getRead(): string
     {
@@ -276,7 +278,7 @@ class StringReader implements ImmutableStringReaderInterface
      */
     public function skipWhitespace(): void
     {
-        if (\IntlChar::isWhitespace($this->peek())) {
+        if (IntlChar::isWhitespace($this->peek())) {
 
             $this->skip();
             $this->skipWhitespace();
@@ -288,6 +290,7 @@ class StringReader implements ImmutableStringReaderInterface
      *
      * @param string $c
      * @return void
+     * @throws CommandSyntaxException
      */
     public function expect(string $c): void
     {
@@ -303,6 +306,7 @@ class StringReader implements ImmutableStringReaderInterface
      * Attempts to find an int.
      *
      * @return integer
+     * @throws CommandSyntaxException
      */
     public function readInt(): int
     {
@@ -332,7 +336,8 @@ class StringReader implements ImmutableStringReaderInterface
     /**
      * Attempts to find a long (really an int).
      *
-     * @return void
+     * @return int
+     * @throws CommandSyntaxException
      */
     public function readLong(): int
     {
@@ -343,6 +348,7 @@ class StringReader implements ImmutableStringReaderInterface
      * Attempts to find a float.
      *
      * @return float
+     * @throws CommandSyntaxException
      */
     public function readFloat(): float
     {
@@ -372,7 +378,8 @@ class StringReader implements ImmutableStringReaderInterface
     /**
      * Returns a double (actually a float).
      *
-     * @return void
+     * @return float
+     * @throws CommandSyntaxException
      */
     public function readDouble(): float
     {
@@ -381,11 +388,12 @@ class StringReader implements ImmutableStringReaderInterface
 
     /**
      * Attempts to find a string that isn't surrounded by quotation marks.
-     * 
+     *
      * There is a small list of valid characters for unquoted strings as self::isAllowedInUnquotedString.
-     * 
+     *
      * Returns the completed string.
      *
+     * @param int|null $start
      * @return string
      */
     public function readUnquotedString(int $start = null): string
@@ -415,10 +423,11 @@ class StringReader implements ImmutableStringReaderInterface
 
     /**
      * Attempts to find a string that is surrounded by quotation marks.
-     * 
+     *
      * Returns that string without the quotes.
      *
      * @return string
+     * @throws CommandSyntaxException
      */
     public function readQuotedString(): string
     {
@@ -441,11 +450,12 @@ class StringReader implements ImmutableStringReaderInterface
 
     /**
      * Reads the string until it finds the terminating character.
-     * 
+     *
      * Returns the completed string without that terminating character.
      *
      * @param string $terminator
      * @return string
+     * @throws CommandSyntaxException
      */
     public function readStringUntil(string $terminator): string
     {
@@ -486,14 +496,15 @@ class StringReader implements ImmutableStringReaderInterface
 
     /**
      * Attempts to find a string at the cursor.
-     * 
+     *
      * If quoted, continues until the next quote.
-     * 
+     *
      * If not quoted, continues until it encounters an invalid character.
-     * 
+     *
      * Returns the string without the quotes.
      *
      * @return string
+     * @throws CommandSyntaxException
      */
     public function readString(): string
     {
@@ -524,10 +535,11 @@ class StringReader implements ImmutableStringReaderInterface
 
     /**
      * Attempts to find the string representation of a boolean (true & false) at the cursor.
-     * 
+     *
      * Returns the corresponding bool.
      *
      * @return boolean
+     * @throws CommandSyntaxException
      */
     public function readBoolean(): bool
     {
